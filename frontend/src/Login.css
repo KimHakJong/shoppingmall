@@ -1,0 +1,324 @@
+/* 로그인 컨테이너 */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+
+/* 로그인 폼 */
+.login-form {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #eee;
+  margin: 0;
+}
+
+/* 로그인 제목 */
+.login-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* 폼 그룹 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 폼 라벨 */
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* 폼 입력 필드 */
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+/* 체크박스 그룹 */
+.checkbox-group {
+  margin-bottom: 25px;
+}
+
+/* 체크박스 라벨 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+}
+
+/* 체크박스 입력 */
+.checkbox-input {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 체크박스 텍스트 */
+.checkbox-text {
+  user-select: none;
+}
+
+/* 로그인 버튼 */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.login-button:hover {
+  background-color: #333;
+}
+
+.login-button:active {
+  background-color: #222;
+}
+
+/* 계정 관리 링크 */
+.account-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+/* 링크 버튼 */
+.link-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.link-button:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+/* 링크 구분자 */
+.link-separator {
+  margin: 0 10px;
+  color: #ddd;
+}
+
+/* 소셜 로그인 */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 소셜 버튼 */
+.social-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: #333;
+}
+
+.social-button:hover {
+  border-color: #999;
+  background-color: #f8f9fa;
+}
+
+/* 소셜 아이콘 */
+.social-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* 네이버 아이콘 */
+.naver-icon {
+  background-color: #000;
+  color: white;
+  border-radius: 2px;
+}
+
+/* 카카오 아이콘 */
+.kakao-icon {
+  background-color: #000;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .login-form {
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-form {
+    max-width: 400px;
+    padding: 35px 30px;
+  }
+  
+  .login-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    max-width: 350px;
+    padding: 30px 20px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+  
+  .form-input {
+    padding: 11px 15px;
+  }
+  
+  .login-button {
+    padding: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-form {
+    max-width: 320px;
+    padding: 25px 15px;
+  }
+  
+  .login-title {
+    font-size: 18px;
+    margin-bottom: 25px;
+  }
+  
+  .form-input {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .login-button {
+    padding: 12px;
+    font-size: 15px;
+  }
+  
+  .form-label {
+    font-size: 13px;
+  }
+  
+  .checkbox-text {
+    font-size: 13px;
+  }
+  
+  .link-button {
+    font-size: 13px;
+  }
+  
+  .social-button {
+    padding: 11px 15px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-form {
+    max-width: 300px;
+    padding: 20px 10px;
+  }
+  
+  .login-title {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .form-input {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  
+  .login-button {
+    padding: 11px;
+    font-size: 14px;
+  }
+  
+  .form-label {
+    font-size: 12px;
+  }
+  
+  .checkbox-text {
+    font-size: 12px;
+  }
+  
+  .link-button {
+    font-size: 12px;
+  }
+  
+  .social-button {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  
+  .social-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+

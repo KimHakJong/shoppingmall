@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shopping.backend.mapper.CategoryMapper">
+
+    <!-- 카테고리 목록 조회 -->
+    <select id="findAllCategories" resultType="Category">
+        SELECT 
+            id,
+            name,
+            code,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM categories
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 카테고리 코드로 조회 -->
+    <select id="findByCode" parameterType="string" resultType="com.shopping.backend.entity.Category">
+        SELECT 
+            id,
+            name,
+            code,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM categories
+        WHERE code = #{code}
+    </select>
+
+    <!-- 카테고리 이름으로 검색 -->
+    <select id="findByNameContaining" parameterType="string" resultType="com.shopping.backend.entity.Category">
+        SELECT 
+            id,
+            name,
+            code,
+            created_at as createdAt,
+            updated_at as updatedAt
+        FROM categories
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+        ORDER BY name ASC
+    </select>
+
+    <!-- 카테고리 통계 조회 -->
+    <select id="getCategoryStats" resultType="com.shopping.backend.dto.CategoryStatsDto">
+        SELECT 
+            c.id,
+            c.name,
+            c.code,
+            COUNT(p.id) as productCount,
+            AVG(p.rating) as averageRating,
+            MIN(p.price) as minPrice,
+            MAX(p.price) as maxPrice
+        FROM categories c
+        LEFT JOIN products p ON c.id = p.category_id
+        GROUP BY c.id, c.name, c.code
+        ORDER BY productCount DESC
+    </select>
+
+    <!-- 카테고리별 상품 가격 통계 -->
+    <select id="getCategoryPriceStats" resultType="com.shopping.backend.dto.CategoryPriceStatsDto">
+        SELECT 
+            c.name as categoryName,
+            COUNT(p.id) as totalProducts,
+            AVG(p.price) as averagePrice,
+            SUM(p.price) as totalValue,
+            MIN(p.price) as minPrice,
+            MAX(p.price) as maxPrice
+        FROM categories c
+        LEFT JOIN products p ON c.id = p.category_id
+        GROUP BY c.id, c.name
+        HAVING totalProducts > 0
+        ORDER BY averagePrice DESC
+    </select>
+
+</mapper> 
