@@ -1,52 +1,40 @@
--- shopping_mall 데이터베이스 사용
-USE shopping_mall;
+-- shopping_mall.categories definition
 
--- 기존 테이블이 있다면 삭제 (주의: 데이터가 모두 삭제됩니다)
-DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS categories;
+CREATE TABLE `categories` (
+  `menu_id` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '메뉴ID',
+  `menu_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '메뉴명',
+  `parent_menu_id` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '상위메뉴ID',
+  `menu_depth` int NOT NULL COMMENT '메뉴깊이',
+  `menu_order` int NOT NULL COMMENT '메뉴순서',
+  `usg_yn` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Y' COMMENT '사용여부',
+  `created_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '최초생성자ID',
+  `created_tsp` timestamp NOT NULL COMMENT '최초생성시간',
+  `updated_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '최종변경자ID',
+  `updated_tsp` timestamp NOT NULL COMMENT '최종변경시간',
+  `admin_yn` char(1) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint NOT NULL,
+  `code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`menu_id`),
+  KEY `parent_menu_id` (`parent_menu_id`),
+  CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_menu_id`) REFERENCES `categories` (`menu_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 카테고리 테이블 생성
-CREATE TABLE categories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    code VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- 상품 테이블 생성
-CREATE TABLE products (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    description TEXT,
-    price DECIMAL(10,2) NOT NULL,
-    stock_quantity INT DEFAULT 0,
-    category_id BIGINT,
-    rating DECIMAL(3,2) DEFAULT 0.00,
-    image_url VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
-
--- 테스트 데이터 삽입
-INSERT INTO categories (name, code) VALUES 
-('전자제품', 'ELECTRONICS'),
-('의류', 'CLOTHING'),
-('도서', 'BOOKS'),
-('스포츠용품', 'SPORTS'),
-('식품', 'FOOD');
-
-INSERT INTO products (name, description, price, stock_quantity, category_id, rating, image_url) VALUES 
-('스마트폰 A', '최신 스마트폰', 800000.00, 50, 1, 4.5, '/images/phone.jpg'),
-('노트북 B', '고성능 노트북', 1200000.00, 30, 1, 4.8, '/images/laptop.jpg'),
-('티셔츠 C', '편안한 티셔츠', 25000.00, 100, 2, 4.2, '/images/tshirt.jpg'),
-('청바지 D', '스타일리시한 청바지', 45000.00, 80, 2, 4.3, '/images/jeans.jpg'),
-('프로그래밍 책', '자바 프로그래밍', 35000.00, 25, 3, 4.6, '/images/book.jpg'),
-('축구공', '프로 축구공', 15000.00, 60, 4, 4.4, '/images/soccer.jpg'),
-('과일 세트', '신선한 과일', 20000.00, 40, 5, 4.1, '/images/fruits.jpg');
-
--- 테이블 생성 확인
-SELECT 'Categories table:' as table_name, COUNT(*) as count FROM categories
-UNION ALL
-SELECT 'Products table:' as table_name, COUNT(*) as count FROM products; 
+CREATE TABLE `users` (
+  `user_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '아이디',
+  `user_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '이름',
+  `user_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '비밀번호',
+  `user_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '이메일',
+  `cell_tphn` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '휴대폰번호',
+  `dtbr` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '생년월일',
+  `gender` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '성별',
+  `zip` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '우편번호',
+  `bscs_addr` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '기본 주소',
+  `dtl_addr` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '상세 주소',
+  `user_role` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '권한',
+  `created_tsp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '최초생성시간',
+  `updated_tsp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '최종변경시간',
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
