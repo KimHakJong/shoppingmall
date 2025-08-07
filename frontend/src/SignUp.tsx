@@ -68,9 +68,9 @@ function SignUp() {
     const mobileNumber = `${mobile1}${mobile2}${mobile3}`;
     
     // 성별 코드 변환
-    const genderCode = gender === 'male' ? 'M' : 'F';
+    const genderCode = gender === 'male' ? 'M' : gender === 'female' ? 'F' : '';
     
-    // API 요청 데이터 준비
+    // API 요청 데이터 준비 (DB 테이블 구조에 맞춤)
     const signupData = {
       user_id: id,
       user_name: name,
@@ -83,11 +83,12 @@ function SignUp() {
       bscs_addr: address || null,
       dtl_addr: detailAddress || null,
       user_role: 'USER' // 기본 권한
+      // created_tsp, updated_tsp는 백엔드에서 자동 처리
     };
     
     try {
-      // 회원가입 API 호출
-      const response = await axios.post('/api/signup', signupData, {
+      // 회원가입 API 호출 (테이블 구조에 맞게 /api/users/join으로 요청)
+      const response = await axios.post('/api/users/join', signupData, {
         headers: {
           'Content-Type': 'application/json',
         }
@@ -114,8 +115,6 @@ function SignUp() {
     console.log('주소 검색');
     // TODO: 주소 검색 API 연동
   };
-
-
 
   /**
    * 뒤로가기 처리 함수
@@ -343,4 +342,4 @@ function SignUp() {
   );
 }
 
-export default SignUp; 
+export default SignUp;
