@@ -72,17 +72,17 @@ function SignUp() {
     
     // API 요청 데이터 준비 (DB 테이블 구조에 맞춤)
     const signupData = {
-      user_id: id,
-      user_name: name,
-      user_password: password,
-      user_email: email || null,
-      cell_tphn: mobileNumber || null,
+      userId: id,
+      userName: name,
+      userPassword: password,
+      userEmail: email || null,
+      cellTphn: mobileNumber || null,
       dtbr: birthDate || null,
       gender: genderCode || null,
       zip: zipCode || null,
       bscs_addr: address || null,
-      dtl_addr: detailAddress || null,
-      user_role: 'USER' // 기본 권한
+      dtlAddr: detailAddress || null,
+      userRole: 'USER' // 기본 권한
       // created_tsp, updated_tsp는 백엔드에서 자동 처리
     };
     

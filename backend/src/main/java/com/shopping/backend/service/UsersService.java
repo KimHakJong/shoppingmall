@@ -13,12 +13,12 @@ public class UsersService {
         this.usersRepository = usersRepository;
     }
 
-    public int insertUser(Users user) {
-        int result = 0;
-        user = usersRepository.save(user); //insert or update
-        if (!(user==null)) {
-            result = 1;
+    public void insertUser(Users user) {
+        //user 가입된 게 있는지 한번 체크
+        if(user.getUserId()) {
+            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
-        return result;
+        usersRepository.save(user); //insert or update
+
     }
 }
