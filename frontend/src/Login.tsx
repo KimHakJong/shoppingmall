@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css';
 
 /**
@@ -31,18 +32,39 @@ function Login() {
    * 
    * @param e 폼 제출 이벤트
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 로그인 로직 구현
-    console.log('로그인 시도:', { id, password, rememberId });
-    
-    // TODO: 실제 로그인 API 호출
-    // fetch('/api/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ id, password })
-    // });
+
+    // 프론트엔드에서 LoginRequest DTO에 맞춰서 전송
+    // (백엔드에서 LoginRequest DTO가 userId, userPassword만 받는다면 아래와 같이 전송)
+    // 만약 추가적으로 필요한 값이 있다면(예: rememberMe 등) 여기에 추가
+    const loginData = {
+      userId: id,
+      userPassword: password
+      // 예시: rememberMe: rememberId
+    };
+
+    try {
+      const response = await axios.post('/api/users/login', loginData, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      // 로그인 성공 처리
+      console.log('로그인 성공:', response.data);
+      alert('로그인에 성공하였습니다.');
+      // TODO: 토큰 저장, 메인 페이지 이동 등 추가 처리
+      // 예시: navigate('/'); 
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('로그인 실패:', error.response?.data);
+        alert(`로그인 실패: ${error.response?.data?.message || '알 수 없는 오류가 발생했습니다.'}`);
+      } else {
+        console.error('로그인 API 호출 중 오류:', error);
+        alert('서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
   };
 
   /**

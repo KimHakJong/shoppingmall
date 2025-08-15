@@ -81,9 +81,8 @@ function SignUp() {
       gender: genderCode || null,
       zip: zipCode || null,
       bscs_addr: address || null,
-      dtlAddr: detailAddress || null,
-      userRole: 'USER' // 기본 권한
-      // created_tsp, updated_tsp는 백엔드에서 자동 처리
+      dtlAddr: detailAddress || null
+      // user_role, created_tsp, updated_tsp는 백엔드에서 자동 처리
     };
     
     try {

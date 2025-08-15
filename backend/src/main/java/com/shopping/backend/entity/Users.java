@@ -13,7 +13,6 @@ public class Users {
 
     /** 아이디 (Primary Key) */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 또는 AUTO
     @Column(name = "user_id", length = 20, nullable = false)
     private String userId;
 
