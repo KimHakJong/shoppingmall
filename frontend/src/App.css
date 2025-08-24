@@ -15,10 +15,10 @@
   align-items: flex-start;
   width: 100%;
   min-height: calc(100vh - 120px);
-  background: white;
-  padding: 20px 0;
+  background: #f8f9fa;
+  padding: 0;
   margin-top: 120px; /* 헤더 높이만큼 아래로 이동 */
-  max-width: 98vw;
+  max-width: 100vw;
   margin-left: auto;
   margin-right: auto;
 }

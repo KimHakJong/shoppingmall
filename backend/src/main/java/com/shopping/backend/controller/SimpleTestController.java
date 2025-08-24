@@ -1,6 +1,6 @@
 package com.shopping.backend.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SimpleTestController {
 
-    @GetMapping("/api/simple/test")
+    @PostMapping("/api/simple/test")
     public String simpleTest() {
         return "Simple test endpoint is working!";
     }

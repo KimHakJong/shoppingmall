@@ -7,6 +7,7 @@
 - **Spring Boot 2.7.18**
 - **Java 8**
 - **Spring Data JPA**
+- **MySQL 8.0** (메인 데이터베이스)
 - **H2 Database** (개발용)
 - **Maven**
 
@@ -19,11 +20,25 @@ backend/
 │   │   ├── java/com/shopping/backend/
 │   │   │   ├── ShoppingBackendApplication.java
 │   │   │   ├── controller/
-│   │   │   │   └── MainController.java
-│   │   │   └── dto/
-│   │   │       ├── MainPageResponse.java
-│   │   │       ├── ProductDto.java
-│   │   │       └── CategoryDto.java
+│   │   │   │   ├── UsersController.java
+│   │   │   │   ├── MainController.java
+│   │   │   │   ├── MenuController.java
+│   │   │   │   └── SimpleTestController.java
+│   │   │   ├── entity/
+│   │   │   │   ├── Users.java
+│   │   │   │   └── Menu.java
+│   │   │   ├── dto/
+│   │   │   │   ├── LoginRequest.java
+│   │   │   │   └── LoginResponse.java
+│   │   │   ├── service/
+│   │   │   │   ├── UsersService.java
+│   │   │   │   └── MenuService.java
+│   │   │   ├── repository/
+│   │   │   │   ├── UsersRepository.java
+│   │   │   │   └── MenuRepository.java
+│   │   │   └── config/
+│   │   │       ├── SecurityConfig.java
+│   │   │       └── WebConfig.java
 │   │   └── resources/
 │   │       └── application.yml
 │   └── test/
@@ -53,12 +68,29 @@ mvn spring-boot:run
 ## API 엔드포인트
 
 ### 메인 페이지 데이터 조회
-- **GET** `/api/main`
+- **POST** `/api/main`
 - 응답: 카테고리, 인기 상품, 신상품 목록
 
 ### 헬스 체크
-- **GET** `/api/main/health`
+- **POST** `/api/main/health`
 - 응답: 서버 상태 확인
+
+### 사용자 관련 API
+- **POST** `/api/users/join` - 회원가입
+- **POST** `/api/users/login` - 로그인
+- **POST** `/api/users/profile` - 사용자 프로필 조회
+- **POST** `/api/users/logout` - 로그아웃
+
+### 메뉴 관련 API
+- **POST** `/api/menus/all` - 모든 메뉴 조회
+- **POST** `/api/menus/top-level` - 최상위 메뉴 조회
+- **POST** `/api/menus/{menuId}` - 특정 메뉴 조회
+- **POST** `/api/menus/create` - 메뉴 생성
+- **POST** `/api/menus/update/{menuId}` - 메뉴 수정
+- **POST** `/api/menus/delete/{menuId}` - 메뉴 삭제
+
+### 테스트 API
+- **POST** `/api/simple/test` - 간단한 테스트
 
 ### H2 데이터베이스 콘솔
 - **URL**: `http://localhost:8080/h2-console`

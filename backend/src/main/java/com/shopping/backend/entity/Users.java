@@ -64,11 +64,32 @@ public class Users {
     @Column(name = "updated_tsp", nullable = false)
     private LocalDateTime updatedTsp;
 
+    /** Refresh Token */
+    @Column(name = "refresh_token", length = 1024)
+    private String refreshToken;
+
+    /** Refresh Token 만료시간 */
+    @Column(name = "refresh_token_expiry")
+    private LocalDateTime refreshTokenExpiry;   
+
     // ===== 생성자 =====
 
     public Users() {
+    }
+
+    // ===== JPA 생명주기 메서드 =====
+    
+    @PrePersist
+    protected void onCreate() {
         this.createdTsp = LocalDateTime.now();
         this.updatedTsp = LocalDateTime.now();
+        System.out.println("=== Users 엔티티 생성: " + this.userId + " ===");
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedTsp = LocalDateTime.now();
+        System.out.println("=== Users 엔티티 업데이트: " + this.userId + " ===");
     }
 
     // ===== Getter/Setter =====
@@ -132,7 +153,7 @@ public class Users {
     public String getZip() {
         return zip;
     }
-
+    
     public void setZip(String zip) {
         this.zip = zip;
     }
@@ -176,4 +197,19 @@ public class Users {
     public void setUpdatedTsp(LocalDateTime updatedTsp) {
         this.updatedTsp = updatedTsp;
     }
+    
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public LocalDateTime getRefreshTokenExpiry() {
+        return refreshTokenExpiry;
+    }
+
+    public void setRefreshTokenExpiry(LocalDateTime refreshTokenExpiry) {
+        this.refreshTokenExpiry = refreshTokenExpiry;
+    }    
 }

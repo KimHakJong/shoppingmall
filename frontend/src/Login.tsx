@@ -53,9 +53,17 @@ function Login() {
 
       // 로그인 성공 처리
       console.log('로그인 성공:', response.data);
+      
+      // JWT 토큰 저장
+      if (response.data.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('userId', response.data.userId);
+      }
+      
       alert('로그인에 성공하였습니다.');
-      // TODO: 토큰 저장, 메인 페이지 이동 등 추가 처리
-      // 예시: navigate('/'); 
+      // 메인 페이지로 이동
+      navigate('/');
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         console.error('로그인 실패:', error.response?.data);

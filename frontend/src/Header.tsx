@@ -1,10 +1,43 @@
 import './Header.css';
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Sidebar from './components/Sidebar';
 
 /**
  * 헤더 컴포넌트
  * HPIX 쇼핑몰과 비슷한 헤더 디자인
  */
 function Header() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleMenuClick = () => {
+    setIsSidebarOpen(true);
+  };
+
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
+  // ESC 키로 사이드바 닫기
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener('keydown', handleEscKey);
+      // 스크롤 방지
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isSidebarOpen]);
+
   return (
     <div className="header-container">
       {/* 상단 배너 */}
@@ -17,7 +50,9 @@ function Header() {
         <div className="header-content">
           {/* 로고 */}
           <div className="logo">
-            <h1>HPIX</h1>
+            <Link to="/">
+              <h1>HPIX</h1>
+            </Link>
           </div>
           
           {/* 네비게이션 메뉴 */}
@@ -49,12 +84,15 @@ function Header() {
             <button className="icon-button profile-icon">
               <span>👤</span>
             </button>
-            <button className="icon-button menu-icon">
+            <button className="icon-button menu-icon" onClick={handleMenuClick}>
               <span>☰</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* 사이드바 컴포넌트 */}
+      <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
     </div>
   );
 }

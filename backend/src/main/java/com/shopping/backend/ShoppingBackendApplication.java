@@ -25,6 +25,8 @@ public class ShoppingBackendApplication {
     public static void main(String[] args) {
         // SpringApplication.run()을 통해 내장 톰캣 서버가 시작됩니다
         // 기본 포트는 8080입니다 (application.yml에서 변경 가능)
+        // MySQL 프로파일을 명시적으로 활성화
+        System.setProperty("spring.profiles.active", "mysql");
         SpringApplication.run(ShoppingBackendApplication.class, args);
     }
 

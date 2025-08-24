@@ -1,0 +1,257 @@
+/* 사이드바 오버레이 */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 사이드바 메뉴 */
+.sidebar-menu {
+  width: 400px;
+  height: 100%;
+  background: #f8f9fa;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Webkit 브라우저에서 스크롤바 숨기기 */
+.sidebar-menu::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 사이드바 헤더 */
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 10;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.close-button:hover {
+  background-color: #e9ecef;
+}
+
+/* 사이드바 콘텐츠 */
+.sidebar-content {
+  padding: 20px;
+}
+
+/* 사이드바 섹션 */
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 사이드바 메뉴 리스트 */
+.sidebar-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-menu-list li {
+  margin-bottom: 12px;
+}
+
+.sidebar-menu-list a {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  transition: color 0.3s ease;
+  display: block;
+  padding: 8px 0;
+}
+
+.sidebar-menu-list a:hover {
+  color: #333;
+}
+
+/* 사이드바 로그인 링크 */
+.sidebar-login-link {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  transition: color 0.3s ease;
+  display: block;
+  padding: 8px 0;
+}
+
+.sidebar-login-link:hover {
+  color: #333;
+}
+
+/* 사이드바 위시리스트 */
+.sidebar-wishlist {
+  color: #666;
+  font-size: 14px;
+  display: block;
+  padding: 8px 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .sidebar-menu {
+    width: 380px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar-menu {
+    width: 350px;
+  }
+  
+  .sidebar-content {
+    padding: 18px;
+  }
+  
+  .sidebar-header {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-menu {
+    width: 320px;
+  }
+  
+  .sidebar-content {
+    padding: 16px;
+  }
+  
+  .sidebar-header {
+    padding: 16px;
+  }
+  
+  .section-title {
+    font-size: 15px;
+  }
+  
+  .sidebar-menu-list a,
+  .sidebar-login-link,
+  .sidebar-wishlist {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-menu {
+    width: 280px;
+  }
+  
+  .sidebar-content {
+    padding: 14px;
+  }
+  
+  .sidebar-header {
+    padding: 14px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .sidebar-menu-list a,
+  .sidebar-login-link,
+  .sidebar-wishlist {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+  
+  .sidebar-menu-list li {
+    margin-bottom: 10px;
+  }
+  
+  .sidebar-section {
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar-menu {
+    width: 260px;
+  }
+  
+  .sidebar-content {
+    padding: 12px;
+  }
+  
+  .sidebar-header {
+    padding: 12px;
+  }
+  
+  .section-title {
+    font-size: 13px;
+  }
+  
+  .sidebar-menu-list a,
+  .sidebar-login-link,
+  .sidebar-wishlist {
+    font-size: 11px;
+  }
+}
+
+/* 매우 작은 화면에서 전체 화면으로 변경 */
+@media (max-width: 320px) {
+  .sidebar-overlay {
+    justify-content: center;
+  }
+  
+  .sidebar-menu {
+    width: 100%;
+    height: 100%;
+    animation: slideInMobile 0.3s ease-out;
+  }
+  
+  @keyframes slideInMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
