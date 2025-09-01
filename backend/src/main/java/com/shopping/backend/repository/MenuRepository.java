@@ -1,9 +1,9 @@
 package com.shopping.backend.repository;
 
+import com.shopping.backend.dto.SearchAllMenuResponse;
 import com.shopping.backend.entity.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,74 +17,23 @@ import java.util.Optional;
 public interface MenuRepository extends JpaRepository<Menu, String> {
 
     /**
-     * 사용 가능한 메뉴 목록 조회 (usg_yn = 'Y')
      * 
-     * @return 사용 가능한 메뉴 목록
+     * @param X
+     * @return
      */
-    List<Menu> findByUsgYnOrderByMenuOrderAsc(String usgYn);
+    
+    @Query(value = "WITH RECURSIVE menu_tree AS ( " +
+                   "SELECT menu_id, menu_name, parent_menu_id, menu_depth, menu_order, " +
+                   "CAST(LPAD(menu_order, 3, '0') AS CHAR(100)) AS path " +
+                   "FROM menus WHERE parent_menu_id IS NULL AND usg_yn = ?1 " + // usg_yn 조건 추가
+                   "UNION ALL " +
+                   "SELECT m.menu_id, m.menu_name, m.parent_menu_id, m.menu_depth, m.menu_order, " +
+                   "CONCAT(mt.path, '-', LPAD(m.menu_order, 1, '0')) AS path " +
+                   "FROM menus m INNER JOIN menu_tree mt ON m.parent_menu_id = mt.menu_id " +
+                   "WHERE m.usg_yn = ?1 " + // 하위 메뉴에도 usg_yn 조건 추가
+                   ") " +
+                   "SELECT menu_id as menuId, menu_name as menuName, parent_menu_id as parentMenuId, menu_depth as menuDepth, menu_order as menuOrder FROM menu_tree ORDER BY path"
+                   , nativeQuery = true)
+    List<SearchAllMenuResponse> searchAllMenus(String usgYn);
 
-    /**
-     * 특정 깊이의 메뉴 목록 조회
-     * 
-     * @param menuDepth 메뉴 깊이
-     * @return 해당 깊이의 메뉴 목록
-     */
-    List<Menu> findByMenuDepthOrderByMenuOrderAsc(Integer menuDepth);
-
-    /**
-     * 상위 메뉴 ID로 하위 메뉴 목록 조회
-     * 
-     * @param parentMenuId 상위 메뉴 ID
-     * @return 하위 메뉴 목록
-     */
-    List<Menu> findByParentMenuIdOrderByMenuOrderAsc(String parentMenuId);
-
-    /**
-     * 최상위 메뉴 목록 조회 (parent_menu_id가 null인 메뉴들)
-     * 
-     * @return 최상위 메뉴 목록
-     */
-    @Query("SELECT m FROM Menu m WHERE m.parentMenuId IS NULL AND m.usgYn = 'Y' ORDER BY m.menuOrder ASC")
-    List<Menu> findTopLevelMenus();
-
-    /**
-     * 메뉴명으로 메뉴 조회
-     * 
-     * @param menuName 메뉴명
-     * @return 메뉴 정보
-     */
-    Optional<Menu> findByMenuName(String menuName);
-
-    /**
-     * 코드로 메뉴 조회
-     * 
-     * @param code 메뉴 코드
-     * @return 메뉴 정보
-     */
-    Optional<Menu> findByCode(String code);
-
-    /**
-     * 관리자 메뉴 목록 조회
-     * 
-     * @param adminYn 관리자 여부
-     * @return 관리자 메뉴 목록
-     */
-    List<Menu> findByAdminYnOrderByMenuOrderAsc(String adminYn);
-
-    /**
-     * 특정 사용자가 생성한 메뉴 목록 조회
-     * 
-     * @param createdId 생성자 ID
-     * @return 해당 사용자가 생성한 메뉴 목록
-     */
-    List<Menu> findByCreatedIdOrderByCreatedTspDesc(String createdId);
-
-    /**
-     * 메뉴 깊이와 사용 여부로 메뉴 목록 조회
-     * 
-     * @param menuDepth 메뉴 깊이
-     * @param usgYn 사용 여부
-     * @return 메뉴 목록
-     */
-    List<Menu> findByMenuDepthAndUsgYnOrderByMenuOrderAsc(Integer menuDepth, String usgYn);
 }

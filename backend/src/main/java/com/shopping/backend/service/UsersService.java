@@ -62,11 +62,15 @@ public class UsersService {
 
     // Refresh Token 삭제 (로그아웃)
     @Transactional
-    public void deleteRefreshToken(String userId) {
+    public void deleteRefreshToken(String userId, String refreshToken) {
         Users user = findByUserId(userId);
-        user.setRefreshToken(null);
-        user.setRefreshTokenExpiry(null);
-        usersRepository.save(user);
+        if (user != null && user.getRefreshToken() != null && user.getRefreshToken().equals(refreshToken)) {
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpiry(null);
+            usersRepository.save(user);
+        } else {
+            throw new RuntimeException("일치하는 Refresh Token을 찾을 수 없거나 이미 만료되었습니다.");
+        }
     }
 
     // 만료된 Refresh Token 정리

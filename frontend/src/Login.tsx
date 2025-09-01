@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext'; // AuthContext 임포트
 import axios from 'axios';
 import './Login.css';
 
@@ -15,6 +16,7 @@ import './Login.css';
  */
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // useAuth 훅을 사용하여 login 함수 가져오기
   
   // ===== React State 관리 =====
   
@@ -35,13 +37,9 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 프론트엔드에서 LoginRequest DTO에 맞춰서 전송
-    // (백엔드에서 LoginRequest DTO가 userId, userPassword만 받는다면 아래와 같이 전송)
-    // 만약 추가적으로 필요한 값이 있다면(예: rememberMe 등) 여기에 추가
     const loginData = {
       userId: id,
       userPassword: password
-      // 예시: rememberMe: rememberId
     };
 
     try {
@@ -54,11 +52,9 @@ function Login() {
       // 로그인 성공 처리
       console.log('로그인 성공:', response.data);
       
-      // JWT 토큰 저장
+      // JWT 토큰 저장 및 전역 로그인 상태 업데이트
       if (response.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-        localStorage.setItem('userId', response.data.userId);
+        login(response.data.accessToken, response.data.refreshToken, response.data.userId);
       }
       
       alert('로그인에 성공하였습니다.');
@@ -77,10 +73,19 @@ function Login() {
 
   /**
    * 네이버 로그인 처리 함수
+   * 네이버 로그인 버튼 클릭 시 네이버 OAuth 인증 페이지로 이동
    */
   const handleNaverLogin = () => {
-    console.log('네이버 로그인 시도');
-    // TODO: 네이버 OAuth 로그인 구현
+    // 네이버 OAuth2 인증 URL 생성
+    const clientId = process.env.REACT_APP_NAVER_CLIENT_ID || 'dVpO1p7RfCQsK9c5FNIh';
+    const redirectUri = encodeURIComponent(
+      process.env.REACT_APP_NAVER_REDIRECT_URI || 'http://localhost:3000/naverlogincollback'
+    );
+    const state = Math.random().toString(36).substring(2, 15); // CSRF 방지용 랜덤 문자열
+
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+
+    window.location.href = naverAuthUrl;
   };
 
   /**

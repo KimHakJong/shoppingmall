@@ -169,6 +169,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .zipcode-group .form-input {
@@ -197,6 +198,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .phone-separator {
@@ -210,6 +212,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .birth-separator {
@@ -319,12 +322,10 @@
   }
   
   .phone-group {
-    flex-direction: column;
     gap: 10px;
   }
   
   .birth-group {
-    flex-direction: column;
     gap: 10px;
   }
   

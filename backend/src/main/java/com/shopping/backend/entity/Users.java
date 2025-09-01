@@ -2,6 +2,7 @@ package com.shopping.backend.entity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 회원 엔티티 클래스
@@ -71,6 +72,18 @@ public class Users {
     /** Refresh Token 만료시간 */
     @Column(name = "refresh_token_expiry")
     private LocalDateTime refreshTokenExpiry;   
+
+    /** 사용자 타입 (EMAIL, NAVER, KAKAO 등) */
+    @Column(name = "user_type", length = 20)
+    private String userType;
+
+    /** 사용 여부 (Y/N) */
+    @Column(name = "usg_yn", length = 1)
+    private String usgYn;
+
+    /** OAuth 사용자들과의 일대다 관계 */
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OAuthUser> oauthUsers;
 
     // ===== 생성자 =====
 
@@ -212,4 +225,28 @@ public class Users {
     public void setRefreshTokenExpiry(LocalDateTime refreshTokenExpiry) {
         this.refreshTokenExpiry = refreshTokenExpiry;
     }    
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public String getUsgYn() {
+        return usgYn;
+    }
+
+    public void setUsgYn(String usgYn) {
+        this.usgYn = usgYn;
+    }
+
+    public List<OAuthUser> getOauthUsers() {
+        return oauthUsers;
+    }
+
+    public void setOauthUsers(List<OAuthUser> oauthUsers) {
+        this.oauthUsers = oauthUsers;
+    }
 }

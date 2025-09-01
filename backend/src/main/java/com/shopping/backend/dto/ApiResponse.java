@@ -1,11 +1,15 @@
 package com.shopping.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 
 /**
  * 공통 API 응답 DTO
  * 모든 API 응답에 일관된 형식을 제공
+ * 
+ * @param <T> 응답 데이터 타입
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     
     private boolean success;
@@ -13,6 +17,7 @@ public class ApiResponse<T> {
     private T data;
     private LocalDateTime timestamp;
     private String errorCode;
+    private Integer statusCode;
 
     // ===== 생성자 =====
     
@@ -36,6 +41,11 @@ public class ApiResponse<T> {
         this.errorCode = errorCode;
     }
 
+    public ApiResponse(boolean success, String message, T data, Integer statusCode) {
+        this(success, message, data);
+        this.statusCode = statusCode;
+    }
+
     // ===== 정적 팩토리 메서드 =====
     
     /**
@@ -49,6 +59,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, message, data);
     }
 
+    public static <T> ApiResponse<T> success(String message, T data, Integer statusCode) {
+        return new ApiResponse<>(true, message, data, statusCode);
+    }
+
     /**
      * 실패 응답 생성
      */
@@ -58,6 +72,12 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(String message, String errorCode) {
         return new ApiResponse<>(false, message, errorCode);
+    }
+
+    public static <T> ApiResponse<T> error(String message, String errorCode, Integer statusCode) {
+        ApiResponse<T> response = new ApiResponse<>(false, message, errorCode);
+        response.setStatusCode(statusCode);
+        return response;
     }
 
     // ===== Getter/Setter =====
@@ -102,6 +122,14 @@ public class ApiResponse<T> {
         this.errorCode = errorCode;
     }
 
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
+    }
+
     @Override
     public String toString() {
         return "ApiResponse{" +
@@ -110,6 +138,7 @@ public class ApiResponse<T> {
                 ", data=" + data +
                 ", timestamp=" + timestamp +
                 ", errorCode='" + errorCode + '\'' +
+                ", statusCode=" + statusCode +
                 '}';
     }
 }

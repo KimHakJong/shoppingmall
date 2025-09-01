@@ -1,12 +1,14 @@
 package com.shopping.backend.entity;
 
 import javax.persistence.*;
+
 import java.time.LocalDateTime;
 
 /**
  * 메뉴 엔티티 클래스
  * DB 테이블: menus
  */
+
 @Entity
 @Table(name = "menus")
 public class Menu {
@@ -56,21 +58,9 @@ public class Menu {
     @Column(name = "admin_yn", length = 1)
     private String adminYn;
 
-    /** ID */
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    /** 코드 */
-    @Column(name = "code", length = 50, nullable = false)
-    private String code;
-
     /** 생성시간 */
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    /** 이름 */
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
 
     /** 수정시간 */
     @Column(name = "updated_at")
@@ -189,36 +179,12 @@ public class Menu {
         this.adminYn = adminYn;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -243,10 +209,7 @@ public class Menu {
                 ", updatedId='" + updatedId + '\'' +
                 ", updatedTsp=" + updatedTsp +
                 ", adminYn='" + adminYn + '\'' +
-                ", id=" + id +
-                ", code='" + code + '\'' +
                 ", createdAt=" + createdAt +
-                ", name='" + name + '\'' +
                 ", updatedAt=" + updatedAt +
                 '}';
     }

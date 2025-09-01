@@ -13,12 +13,14 @@
 
 /* 사이드바 메뉴 */
 .sidebar-menu {
-  width: 400px;
+  max-width: 400px; /* width 대신 max-width 사용 */
+  width: 90vw; /* 기본 너비 설정, 뷰포트 너비의 90% */
   height: 100%;
   background: #f8f9fa;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   animation: slideIn 0.3s ease-out;
+  box-sizing: border-box; /* 추가 */
   /* 스크롤바 숨기기 */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
@@ -134,13 +136,16 @@
 /* 반응형 디자인 */
 @media (max-width: 1200px) {
   .sidebar-menu {
-    width: 380px;
+    max-width: 380px; /* max-width로 변경 */
+    width: 90vw; /* 유지 */
   }
 }
 
 @media (max-width: 1024px) {
   .sidebar-menu {
-    width: 350px;
+    max-width: 350px; /* max-width로 변경 */
+    width: 90vw; /* 유지 */
+    padding: 0; /* 패딩은 내부 컨텐츠에서 처리 */
   }
   
   .sidebar-content {
@@ -154,7 +159,9 @@
 
 @media (max-width: 768px) {
   .sidebar-menu {
-    width: 320px;
+    max-width: 320px; /* max-width로 변경 */
+    width: 90vw; /* 유지 */
+    padding: 0; /* 패딩은 내부 컨텐츠에서 처리 */
   }
   
   .sidebar-content {
@@ -178,7 +185,9 @@
 
 @media (max-width: 480px) {
   .sidebar-menu {
-    width: 280px;
+    max-width: 280px; /* max-width로 변경 */
+    width: 90vw; /* 유지 */
+    padding: 0; /* 패딩은 내부 컨텐츠에서 처리 */
   }
   
   .sidebar-content {
@@ -212,7 +221,9 @@
 
 @media (max-width: 360px) {
   .sidebar-menu {
-    width: 260px;
+    max-width: 260px; /* max-width로 변경 */
+    width: 90vw; /* 유지 */
+    padding: 0; /* 패딩은 내부 컨텐츠에서 처리 */
   }
   
   .sidebar-content {
@@ -243,6 +254,7 @@
   .sidebar-menu {
     width: 100%;
     height: 100%;
+    padding: 0; /* 전체 화면일 때 패딩 제거, 내부 content에서 처리 */
     animation: slideInMobile 0.3s ease-out;
   }
   
@@ -254,4 +266,9 @@
       transform: translateY(0);
     }
   }
+}
+
+.depth-1-menu {
+  font-weight: bold;
+  color: #000; /* 완전한 검은색으로 변경 */
 }

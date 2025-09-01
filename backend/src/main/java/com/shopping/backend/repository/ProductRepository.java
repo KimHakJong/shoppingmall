@@ -1,6 +1,9 @@
 package com.shopping.backend.repository;
 
+import com.shopping.backend.dto.SearchProductsResponse;
 import com.shopping.backend.entity.Product;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,45 +18,16 @@ import java.util.List;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query(value =  "select A.prod_id as prodId, A.prod_name as prodName, A.menu_id as menuId, A.prod_price as prodPrice, B.image_url as imageUrl " +
+                    "from product A left outer join product_image B on A.prod_id = B.prod_id " +
+                    "where A.menu_id = :menuId " +
+                    "and A.prod_status = :prodStatus " +
+                    "and B.thumbnail_yn = :thumbnailYn"
+                    , nativeQuery = true)
+    List<SearchProductsResponse> searchProductsList(@Param("menuId") String menuId,
+                                                    @Param("prodStatus") String prodStatus,
+                                                    @Param("thumbnailYn") String thumbnailYn
+                            );
     
-    /**
-     * 카테고리별 상품 목록 조회
-     * 
-     * @param categoryId 카테고리 ID
-     * @return List<Product> 상품 목록
-     */
-    List<Product> findByCategoryId(Long categoryId);
-    
-    /**
-     * 인기 상품 목록 조회 (인기 상품 플래그가 true인 상품들)
-     * 
-     * @return List<Product> 인기 상품 목록
-     */
-    @Query("SELECT p FROM Product p WHERE p.isPopular = true ORDER BY p.createdAt DESC")
-    List<Product> findPopularProducts();
-    
-    /**
-     * 신상품 목록 조회 (최근 등록 순, 최대 8개)
-     * 
-     * @return List<Product> 신상품 목록
-     */
-    @Query("SELECT p FROM Product p ORDER BY p.createdAt DESC")
-    List<Product> findNewProducts();
-    
-    /**
-     * 상품명으로 상품 검색
-     * 
-     * @param name 상품명 (부분 검색)
-     * @return List<Product> 검색된 상품 목록
-     */
-    List<Product> findByNameContainingIgnoreCase(String name);
-    
-    /**
-     * 가격 범위로 상품 검색
-     * 
-     * @param minPrice 최소 가격
-     * @param maxPrice 최대 가격
-     * @return List<Product> 검색된 상품 목록
-     */
-    List<Product> findByPriceBetween(Integer minPrice, Integer maxPrice);
 } 

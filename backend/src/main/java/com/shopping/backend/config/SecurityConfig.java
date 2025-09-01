@@ -47,7 +47,7 @@ public class SecurityConfig {
             .httpBasic((auth) -> auth.disable());
         http            
             .authorizeRequests((auth) -> auth
-                .antMatchers("/api/users/join","/api/users/login","/api/users/refresh","/api/users/logout").permitAll()
+                .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()); //join, login, refresh 외엔 인증 필요
          // JWT 인증 필터 추가
         http
