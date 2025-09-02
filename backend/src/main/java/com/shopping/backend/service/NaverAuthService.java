@@ -1,14 +1,12 @@
 package com.shopping.backend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopping.backend.dto.NaverLoginResponse;
 import com.shopping.backend.dto.NaverTokenResponse;
 import com.shopping.backend.dto.NaverUserInfoResponse;
 import com.shopping.backend.entity.Users;
-import com.shopping.backend.entity.OAuthUser;
-import com.shopping.backend.jwt.JwtTokenizer;
+import com.shopping.backend.entity.OAuthUsers;
 import com.shopping.backend.repository.UsersRepository;
-import com.shopping.backend.repository.OAuthUserRepository;
+import com.shopping.backend.repository.OAuthUsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -19,8 +17,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,10 +30,8 @@ import java.util.UUID;
 public class NaverAuthService {
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
-    private final JwtTokenizer jwtTokenizer;
     private final UsersRepository usersRepository;
-    private final OAuthUserRepository oauthUserRepository;
+    private final OAuthUsersRepository oauthUsersRepository;
 
     // 네이버 OAuth 설정값들 (application.yml에서 주입받음)
     @Value("${naver.oauth.client-id}")
@@ -58,14 +53,11 @@ public class NaverAuthService {
     private String userInfoUrl;
 
     @Autowired
-    public NaverAuthService(RestTemplate restTemplate, ObjectMapper objectMapper, 
-                           JwtTokenizer jwtTokenizer, UsersRepository usersRepository,
-                           OAuthUserRepository oauthUserRepository) {
+    public NaverAuthService(RestTemplate restTemplate, 
+                           UsersRepository usersRepository, OAuthUsersRepository oauthUsersRepository) {
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
-        this.jwtTokenizer = jwtTokenizer;
         this.usersRepository = usersRepository;
-        this.oauthUserRepository = oauthUserRepository;
+        this.oauthUsersRepository = oauthUsersRepository;
     }
 
     /**
@@ -113,8 +105,8 @@ public class NaverAuthService {
             throw new RuntimeException("네이버 사용자 정보 조회 실패: " + userInfoResponse.getMessage());
         }
         
-        // 3단계: 사용자 정보로 JWT 토큰 생성 및 사용자 저장/업데이트
-        NaverLoginResponse loginResponse = createJwtTokenAndSaveUser(userInfoResponse.getUserInfo());
+        // 3단계: 사용자 정보로 JWT 토큰 생성 및 사용자 저장/업데이트 --> JWT토큰은 자체로그인할때만, Oauth refresh 토큰만 따로 저장필요(oauth db에)
+        NaverLoginResponse loginResponse = SaveAuthUser(userInfoResponse.getUserInfo(), tokenResponse);
         
         System.out.println("네이버 로그인 처리 완료 - userId: " + loginResponse.getUserId());
         
@@ -138,10 +130,10 @@ public class NaverAuthService {
         // 요청 파라미터 설정
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
+        params.add("client_id", "dVpO1p7RfCQsK9c5FNIh");
+        params.add("client_secret", "30g56ObElc");
         params.add("code", code);
-        params.add("redirect_uri", redirectUri);
+        params.add("redirect_uri", "http://localhost:3000/naverlogincollback");
         
         // HTTP 요청 엔티티 생성
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
@@ -155,6 +147,7 @@ public class NaverAuthService {
         }
         
         NaverTokenResponse tokenResponse = response.getBody();
+        System.out.println("tokenResponse :" + tokenResponse.toString());
         System.out.println("네이버 액세스 토큰 발급 성공");
         
         return tokenResponse;
@@ -187,7 +180,10 @@ public class NaverAuthService {
         
         NaverUserInfoResponse userInfoResponse = response.getBody();
         System.out.println("네이버 사용자 정보 조회 성공 - userId: " + userInfoResponse.getUserInfo().getId());
-        
+        // toString()이 정상적으로 동작하도록 하기 위해 lombok의 @ToString 어노테이션을 NaverUserInfoResponse와 NaverUserInfo 클래스에 추가해야 합니다.
+        // 예시: @ToString
+        // 실제 적용 후 아래 출력문이 객체의 모든 필드를 보기 좋게 출력합니다.
+        System.out.println("네이버 사용자 정보 조회 성공 - userInfoResponse: " + userInfoResponse);
         return userInfoResponse;
     }
 
@@ -197,14 +193,14 @@ public class NaverAuthService {
      * @param naverUserInfo 네이버 사용자 정보
      * @return JWT 토큰과 사용자 정보를 포함한 로그인 응답
      */
-    private NaverLoginResponse createJwtTokenAndSaveUser(NaverUserInfoResponse.NaverUserInfo naverUserInfo) {
-        System.out.println("JWT 토큰 생성 및 사용자 저장 시작");
+    private NaverLoginResponse SaveAuthUser(NaverUserInfoResponse.NaverUserInfo naverUserInfo, NaverTokenResponse tokenResponse) {
+        System.out.println("사용자 저장 시작");
         
         // 네이버 사용자 ID로 기존 OAuth 사용자 조회
-        Optional<OAuthUser> existingOAuthUser = oauthUserRepository.findByProviderAndProviderUserId("NAVER", naverUserInfo.getId());
+        Optional<OAuthUsers> existingOAuthUser = oauthUsersRepository.findByProviderAndProviderUserId("NAVER", naverUserInfo.getId());
         
         Users user;
-        OAuthUser oauthUser;
+        OAuthUsers oauthUser;
         
         if (existingOAuthUser.isPresent()) {
             // 기존 OAuth 사용자 정보 업데이트
@@ -212,16 +208,20 @@ public class NaverAuthService {
             user = usersRepository.findById(oauthUser.getUserId()).orElseThrow(() -> 
                 new RuntimeException("연관된 사용자 정보를 찾을 수 없습니다."));
             
+            //yyyy + MM-DD => yyyyMMDD 형식 변환
+            String DtbrFormat = naverUserInfo.getBirthYear().substring(2,3) + naverUserInfo.getBirthday().replace("-", "");
+
             // OAuth 사용자 정보 업데이트
-            oauthUser.setProviderName(naverUserInfo.getName());
-            oauthUser.setProviderEmail(naverUserInfo.getEmail());
-            oauthUser.setProviderNickname(naverUserInfo.getNickname());
-            oauthUser.setProviderProfileImage(naverUserInfo.getProfileImage());
-            oauthUser.setProviderGender(naverUserInfo.getGender());
-            oauthUser.setProviderBirthYear(naverUserInfo.getBirthYear());
-            oauthUser.setProviderBirthday(naverUserInfo.getBirthday());
-            oauthUser.setProviderAgeRange(naverUserInfo.getAgeRange());
-            oauthUser.setProviderMobile(naverUserInfo.getMobile());
+            user.setUserName(naverUserInfo.getName());
+            user.setUserEmail(naverUserInfo.getEmail());
+            user.setDtbr(DtbrFormat);
+            user.setCellTphn(naverUserInfo.getMobile().replaceAll("-", ""));
+            // oauthUser.setProvider("NAVER");
+            // oauthUser.setProviderUserId(naverUserInfo.getId());   //변경될 이유 X
+            oauthUser.setRefreshToken(tokenResponse.getRefreshToken()); // OAuth 리프레시 토큰 저장
+            oauthUser.setRefreshTokenExpiry(LocalDateTime.now().plusSeconds(tokenResponse.getExpiresIn())); // 리프레시 토큰 만료 시간 (네이버는 액세스 토큰 만료 시간으로 제공하는 경우가 많으므로 적절히 조정 필요)
+            oauthUser.setScope(tokenResponse.getScope());
+            
             
             System.out.println("기존 OAuth 사용자 정보 업데이트 - userId: " + user.getUserId());
         } else {
@@ -237,45 +237,48 @@ public class NaverAuthService {
             user = usersRepository.save(user);
             
             // 새로운 OAuth 사용자 생성
-            oauthUser = new OAuthUser();
+            oauthUser = new OAuthUsers();
             oauthUser.setUserId(user.getUserId());
             oauthUser.setProvider("NAVER");
             oauthUser.setProviderUserId(naverUserInfo.getId());
-            oauthUser.setProviderEmail(naverUserInfo.getEmail());
-            oauthUser.setProviderName(naverUserInfo.getName());
-            oauthUser.setProviderNickname(naverUserInfo.getNickname());
-            oauthUser.setProviderProfileImage(naverUserInfo.getProfileImage());
-            oauthUser.setProviderGender(naverUserInfo.getGender());
-            oauthUser.setProviderBirthYear(naverUserInfo.getBirthYear());
-            oauthUser.setProviderBirthday(naverUserInfo.getBirthday());
-            oauthUser.setProviderAgeRange(naverUserInfo.getAgeRange());
-            oauthUser.setProviderMobile(naverUserInfo.getMobile());
+            oauthUser.setRefreshToken(tokenResponse.getRefreshToken()); // OAuth 리프레시 토큰 저장
+            oauthUser.setRefreshTokenExpiry(LocalDateTime.now().plusSeconds(tokenResponse.getExpiresIn())); // 리프레시 토큰 만료 시간
+            oauthUser.setScope(tokenResponse.getScope());
+            // oauthUser.setProviderEmail(naverUserInfo.getEmail());
+            // oauthUser.setProviderName(naverUserInfo.getName());
+            // oauthUser.setProviderNickname(naverUserInfo.getNickname());
+            // oauthUser.setProviderProfileImage(naverUserInfo.getProfileImage());
+            // oauthUser.setProviderGender(naverUserInfo.getGender());
+            // oauthUser.setProviderBirthYear(naverUserInfo.getBirthYear());
+            // oauthUser.setProviderBirthday(naverUserInfo.getBirthday());
+            // oauthUser.setProviderAgeRange(naverUserInfo.getAgeRange());
+            // oauthUser.setProviderMobile(naverUserInfo.getMobile());
             
             System.out.println("새로운 OAuth 사용자 생성 - userId: " + user.getUserId());
         }
         
         // OAuth 사용자 정보 저장
-        oauthUserRepository.save(oauthUser);
+        oauthUsersRepository.save(oauthUser);
         
-        // JWT 토큰 생성
-        String accessToken = jwtTokenizer.createAccessToken(user.getUserId(), user.getUserEmail());
-        String refreshToken = jwtTokenizer.createRefreshToken(user.getUserId());
+        // JWT 토큰 생성 (OAuth 로그인 시 자체 JWT 생성 로직 제거)
+        // String accessToken = jwtTokenizer.createAccessToken(user.getUserId(), user.getUserEmail());
+        // String refreshToken = jwtTokenizer.createRefreshToken(user.getUserId());
         
         // 리프레시 토큰을 데이터베이스에 저장 (기존 JWT 관련 로직 활용)
         // TODO: RefreshToken 엔티티에 저장하는 로직 추가 필요
         
-        System.out.println("JWT 토큰 생성 완료");
+        System.out.println("사용자 저장 완료");
         
-        // 로그인 응답 생성
+        // 로그인 응답 생성 (JWT 관련 필드 제거)
         return NaverLoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .expiresIn(3600L) // 1시간
+                // .accessToken(accessToken)
+                // .refreshToken(refreshToken)
+                // .tokenType("Bearer")
+                // .expiresIn(3600L) // 1시간
                 .userId(user.getUserId())
                 .email(user.getUserEmail())
                 .nickname(user.getUserName())
-                .profileImage(oauthUser.getProviderProfileImage())
+                // .profileImage(oauthUser.getProviderProfileImage())
                 .success(true)
                 .message("네이버 로그인이 성공했습니다.")
                 .build();

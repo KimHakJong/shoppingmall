@@ -83,7 +83,7 @@ public class Users {
 
     /** OAuth 사용자들과의 일대다 관계 */
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OAuthUser> oauthUsers;
+    private List<OAuthUsers> oauthUsers;
 
     // ===== 생성자 =====
 
@@ -96,13 +96,11 @@ public class Users {
     protected void onCreate() {
         this.createdTsp = LocalDateTime.now();
         this.updatedTsp = LocalDateTime.now();
-        System.out.println("=== Users 엔티티 생성: " + this.userId + " ===");
     }
     
     @PreUpdate
     protected void onUpdate() {
         this.updatedTsp = LocalDateTime.now();
-        System.out.println("=== Users 엔티티 업데이트: " + this.userId + " ===");
     }
 
     // ===== Getter/Setter =====
@@ -242,11 +240,11 @@ public class Users {
         this.usgYn = usgYn;
     }
 
-    public List<OAuthUser> getOauthUsers() {
+    public List<OAuthUsers> getOauthUsers() {
         return oauthUsers;
     }
 
-    public void setOauthUsers(List<OAuthUser> oauthUsers) {
+    public void setOauthUsers(List<OAuthUsers> oauthUsers) {
         this.oauthUsers = oauthUsers;
     }
 }

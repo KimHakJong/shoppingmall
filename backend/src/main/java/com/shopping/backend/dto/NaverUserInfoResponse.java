@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 /**
  * 네이버 사용자 정보 API 응답 DTO
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class NaverUserInfoResponse {
     
     /**
@@ -42,6 +44,7 @@ public class NaverUserInfoResponse {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @ToString
     public static class NaverUserInfo {
         
         /**

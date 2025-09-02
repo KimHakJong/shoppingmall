@@ -3,6 +3,7 @@ package com.shopping.backend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class NaverTokenResponse {
     
     /**
@@ -54,4 +56,10 @@ public class NaverTokenResponse {
      */
     @JsonProperty("error_description")
     private String errorDescription;
+
+    /**
+     * 발급된 액세스 토큰의 접근 범위
+     */
+    @JsonProperty("scope")
+    private String scope;
 }
