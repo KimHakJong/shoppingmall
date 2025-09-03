@@ -39,16 +39,12 @@ public class UsersService {
         System.out.println("사용자 저장 완료: " + savedUser.getUserId());
         System.out.println("=== UsersService.insertUser 종료 ===");
     }
-
-    public Users findByUserId(String userId) {
-        return usersRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userId));
-    }
-
     // Refresh Token 저장
     @Transactional
     public void saveRefreshToken(String userId, String refreshToken, LocalDateTime expiry) {
-        Users user = findByUserId(userId);
+        Users user = usersRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + userId));
+        
         user.setRefreshToken(refreshToken);
         user.setRefreshTokenExpiry(expiry);
         usersRepository.save(user);

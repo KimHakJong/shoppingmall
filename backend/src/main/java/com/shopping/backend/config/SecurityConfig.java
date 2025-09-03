@@ -11,7 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.shopping.backend.jwt.JwtAuthenticationFilter;
+import com.shopping.backend.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity

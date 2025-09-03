@@ -6,6 +6,7 @@ import com.shopping.backend.dto.NaverUserInfoResponse;
 import com.shopping.backend.entity.Users;
 import com.shopping.backend.entity.OAuthUsers;
 import com.shopping.backend.repository.UsersRepository;
+import com.shopping.backend.security.TokenEncryptor;
 import com.shopping.backend.repository.OAuthUsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +17,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 네이버 OAuth 인증 서비스
@@ -191,9 +192,10 @@ public class NaverAuthService {
      * 사용자 정보로 JWT 토큰 생성 및 사용자 저장/업데이트
      * 
      * @param naverUserInfo 네이버 사용자 정보
-     * @return JWT 토큰과 사용자 정보를 포함한 로그인 응답
+     * @return 토큰과 사용자 정보를 포함한 로그인 응답
+     * @throws Exception 
      */
-    private NaverLoginResponse SaveAuthUser(NaverUserInfoResponse.NaverUserInfo naverUserInfo, NaverTokenResponse tokenResponse) {
+    private NaverLoginResponse SaveAuthUser(NaverUserInfoResponse.NaverUserInfo naverUserInfo, NaverTokenResponse tokenResponse) throws Exception {
         System.out.println("사용자 저장 시작");
         
         // 네이버 사용자 ID로 기존 OAuth 사용자 조회
@@ -203,7 +205,7 @@ public class NaverAuthService {
         OAuthUsers oauthUser;
         
         if (existingOAuthUser.isPresent()) {
-            // 기존 OAuth 사용자 정보 업데이트
+            // 기존 사용자 정보 찾기
             oauthUser = existingOAuthUser.get();
             user = usersRepository.findById(oauthUser.getUserId()).orElseThrow(() -> 
                 new RuntimeException("연관된 사용자 정보를 찾을 수 없습니다."));
@@ -211,74 +213,66 @@ public class NaverAuthService {
             //yyyy + MM-DD => yyyyMMDD 형식 변환
             String DtbrFormat = naverUserInfo.getBirthYear().substring(2,3) + naverUserInfo.getBirthday().replace("-", "");
 
-            // OAuth 사용자 정보 업데이트
+            // 기존 Users 사용자 정보 설정
             user.setUserName(naverUserInfo.getName());
             user.setUserEmail(naverUserInfo.getEmail());
             user.setDtbr(DtbrFormat);
             user.setCellTphn(naverUserInfo.getMobile().replaceAll("-", ""));
-            // oauthUser.setProvider("NAVER");
-            // oauthUser.setProviderUserId(naverUserInfo.getId());   //변경될 이유 X
-            oauthUser.setRefreshToken(tokenResponse.getRefreshToken()); // OAuth 리프레시 토큰 저장
+
+            // 기존 OAuth 사용자 정보 설정
+            String encryptedExisting = TokenEncryptor.encrypt(tokenResponse.getRefreshToken());
+            oauthUser.setRefreshToken(encryptedExisting); // OAuth 리프레시 토큰 암호화 저장
             oauthUser.setRefreshTokenExpiry(LocalDateTime.now().plusSeconds(tokenResponse.getExpiresIn())); // 리프레시 토큰 만료 시간 (네이버는 액세스 토큰 만료 시간으로 제공하는 경우가 많으므로 적절히 조정 필요)
             oauthUser.setScope(tokenResponse.getScope());
             
-            
             System.out.println("기존 OAuth 사용자 정보 업데이트 - userId: " + user.getUserId());
         } else {
-            // 새로운 사용자 생성
+
+            //yyyy + MM-DD => yyyyMMDD 형식 변환
+             String DtbrFormat = naverUserInfo.getBirthYear().substring(2,3) + naverUserInfo.getBirthday().replace("-", "");
+          
+            // 새로운 Users 사용자 정보 설정
             user = new Users();
             user.setUserId(generateUserId()); // 고유한 사용자 ID 생성
             user.setUserName(naverUserInfo.getName());
+            user.setUserStatus("0");            
             user.setUserEmail(naverUserInfo.getEmail());
-            user.setUserType("NAVER"); // 로그인 타입을 네이버로 설정
-            user.setUsgYn("Y"); // 사용 여부 활성화
+            user.setDtbr(DtbrFormat);
+            user.setCellTphn(naverUserInfo.getMobile().replaceAll("-", ""));
+            user.setUserRole("USER");
             
-            // 사용자 정보 저장
-            user = usersRepository.save(user);
             
             // 새로운 OAuth 사용자 생성
             oauthUser = new OAuthUsers();
             oauthUser.setUserId(user.getUserId());
             oauthUser.setProvider("NAVER");
             oauthUser.setProviderUserId(naverUserInfo.getId());
-            oauthUser.setRefreshToken(tokenResponse.getRefreshToken()); // OAuth 리프레시 토큰 저장
+            System.out.println("naverUserInfo.IdL"+naverUserInfo.getId());
+            String encrypted = TokenEncryptor.encrypt(tokenResponse.getRefreshToken());
+
+            oauthUser.setRefreshToken(encrypted); // OAuth 리프레시 토큰 저장
             oauthUser.setRefreshTokenExpiry(LocalDateTime.now().plusSeconds(tokenResponse.getExpiresIn())); // 리프레시 토큰 만료 시간
             oauthUser.setScope(tokenResponse.getScope());
-            // oauthUser.setProviderEmail(naverUserInfo.getEmail());
-            // oauthUser.setProviderName(naverUserInfo.getName());
-            // oauthUser.setProviderNickname(naverUserInfo.getNickname());
-            // oauthUser.setProviderProfileImage(naverUserInfo.getProfileImage());
-            // oauthUser.setProviderGender(naverUserInfo.getGender());
-            // oauthUser.setProviderBirthYear(naverUserInfo.getBirthYear());
-            // oauthUser.setProviderBirthday(naverUserInfo.getBirthday());
-            // oauthUser.setProviderAgeRange(naverUserInfo.getAgeRange());
-            // oauthUser.setProviderMobile(naverUserInfo.getMobile());
             
             System.out.println("새로운 OAuth 사용자 생성 - userId: " + user.getUserId());
         }
-        
+        try {
+        // 사용자 정보 저장
+        user = usersRepository.save(user);        
+
         // OAuth 사용자 정보 저장
-        oauthUsersRepository.save(oauthUser);
-        
-        // JWT 토큰 생성 (OAuth 로그인 시 자체 JWT 생성 로직 제거)
-        // String accessToken = jwtTokenizer.createAccessToken(user.getUserId(), user.getUserEmail());
-        // String refreshToken = jwtTokenizer.createRefreshToken(user.getUserId());
-        
-        // 리프레시 토큰을 데이터베이스에 저장 (기존 JWT 관련 로직 활용)
-        // TODO: RefreshToken 엔티티에 저장하는 로직 추가 필요
-        
+        oauthUser = oauthUsersRepository.save(oauthUser); 
+        } catch (Exception e) {
+            throw new RuntimeException("사용자 저장 에러:"+e.getMessage());
+        }
+
         System.out.println("사용자 저장 완료");
         
-        // 로그인 응답 생성 (JWT 관련 필드 제거)
+        // 로그인 응답 생성
         return NaverLoginResponse.builder()
-                // .accessToken(accessToken)
-                // .refreshToken(refreshToken)
-                // .tokenType("Bearer")
-                // .expiresIn(3600L) // 1시간
+                .accessToken(tokenResponse.getAccessToken())
+                .refreshToken(oauthUser.getRefreshToken())
                 .userId(user.getUserId())
-                .email(user.getUserEmail())
-                .nickname(user.getUserName())
-                // .profileImage(oauthUser.getProviderProfileImage())
                 .success(true)
                 .message("네이버 로그인이 성공했습니다.")
                 .build();
@@ -290,6 +284,9 @@ public class NaverAuthService {
      * @return 생성된 사용자 ID
      */
     private String generateUserId() {
-        return "USER_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 8);
+        String ts = Long.toString(System.currentTimeMillis(), 36);
+        int r = ThreadLocalRandom.current().nextInt(0, 36 * 36 * 36 * 36);
+        String rand = String.format("%4s", Integer.toString(r, 36)).replace(' ', '0');
+        return "N_" + ts + rand;
     }
 }

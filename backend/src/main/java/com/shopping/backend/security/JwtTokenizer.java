@@ -1,4 +1,4 @@
-package com.shopping.backend.jwt;
+package com.shopping.backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

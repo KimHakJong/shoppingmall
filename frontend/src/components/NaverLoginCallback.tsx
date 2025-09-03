@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ const NaverLogin: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const isProcessingRef = useRef(false);
 
   /**
    * 컴포넌트 마운트 시 URL 파라미터에서 네이버 인증 코드 확인
@@ -28,8 +29,9 @@ const NaverLogin: React.FC = () => {
       return;
     }
 
-    // 인증 코드가 있는 경우 백엔드로 전송하여 로그인 처리
-    if (code) {
+    // 인증 코드가 있고, 아직 처리되지 않았다면 백엔드로 전송하여 로그인 처리
+    if (code && !isProcessingRef.current) {
+      isProcessingRef.current = true;
       handleNaverLogin(code, state);
     }
   }, []);
@@ -60,16 +62,14 @@ const NaverLogin: React.FC = () => {
 
       console.log('네이버 로그인 응답:', response.data);
 
-      // 응답이 성공인 경우 JWT 토큰 저장
+      // 응답이 성공인 경우 토큰 저장
       if (response.data.success) {
         const loginData = response.data.data;
         
-        // JWT 토큰을 로컬 스토리지에 저장
+        // 토큰을 로컬 스토리지에 저장
         localStorage.setItem('accessToken', loginData.accessToken);
         localStorage.setItem('refreshToken', loginData.refreshToken);
         localStorage.setItem('userId', loginData.userId);
-        localStorage.setItem('userEmail', loginData.email);
-        localStorage.setItem('loginType', 'NAVER');
 
         console.log('네이버 로그인 성공 - 사용자 정보 저장 완료');
 

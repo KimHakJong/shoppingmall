@@ -27,7 +27,7 @@ public class NaverAuthController {
 
     /**
      * 네이버 로그인 처리
-     * 네이버에서 받은 인증 코드를 사용하여 사용자 정보를 조회하고 JWT 토큰을 발급
+     * 네이버에서 받은 인증 코드를 사용하여 사용자 정보를 조회하고 토큰을 발급
      * 
      * @param request 네이버 인증 코드를 포함하는 요청 DTO
      * @return JWT 토큰과 사용자 정보를 포함한 응답

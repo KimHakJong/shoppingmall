@@ -32,7 +32,7 @@ public interface OAuthUsersRepository extends JpaRepository<OAuthUsers, Long> {
      * @param userId 사용자 ID
      * @return OAuth 사용자 목록
      */
-    List<OAuthUsers> findByUserId(String userId);
+    Optional<OAuthUsers> findByUserId(String userId);
 
     /**
      * 사용자 ID와 OAuth 제공자로 OAuth 사용자 조회

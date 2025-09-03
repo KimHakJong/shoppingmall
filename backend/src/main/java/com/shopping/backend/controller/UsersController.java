@@ -6,8 +6,10 @@ import com.shopping.backend.dto.LoginRequest;
 import com.shopping.backend.dto.LoginResponse;
 import com.shopping.backend.dto.LogoutRequest;
 import com.shopping.backend.entity.Users;
+import com.shopping.backend.security.JwtTokenizer;
+import com.shopping.backend.service.OAuthUsersService;
 import com.shopping.backend.service.UsersService;
-import com.shopping.backend.jwt.JwtTokenizer;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,11 +22,13 @@ import java.time.LocalDateTime;
 public class UsersController {
 
     private final UsersService usersService;
+    private final OAuthUsersService oauthUsersService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
 
-    public UsersController(UsersService usersService, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer) {
+    public UsersController(UsersService usersService, OAuthUsersService oauthUsersService, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer) {
         this.usersService = usersService;
+        this.oauthUsersService = oauthUsersService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
     }
@@ -146,9 +150,12 @@ public class UsersController {
         try {
             Users user = usersService.findByUserId(logoutRequest.getUserId());
             if (user != null) {
-                // 해당 user의 refreshToken을 null로 처리
-                usersService.deleteRefreshToken(logoutRequest.getUserId(), logoutRequest.getRefreshToken());
-                
+                if(user.getUserPassword() != null) {
+                    // 해당 user의 refreshToken을 null로 처리
+                    usersService.deleteRefreshToken(logoutRequest.getUserId(), logoutRequest.getRefreshToken());
+                } else {
+                    oauthUsersService.deleteRefreshToken(logoutRequest.getUserId(), logoutRequest.getRefreshToken());
+                }
                 ApiResponse<String> response = ApiResponse.success(
                     "로그아웃이 완료되었습니다.",
                     "로그아웃 성공",

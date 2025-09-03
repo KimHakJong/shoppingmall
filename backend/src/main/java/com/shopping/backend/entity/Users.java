@@ -2,7 +2,6 @@ package com.shopping.backend.entity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 회원 엔티티 클래스
@@ -22,8 +21,12 @@ public class Users {
     private String userName;
 
     /** 비밀번호 */
-    @Column(name = "user_password", length = 255, nullable = false)
+    @Column(name = "user_password", length = 255)
     private String userPassword;
+
+    /** 회원상태 */
+    @Column(name = "user_status", length = 10, nullable = false)
+    private String userStatus;
 
     /** 이메일 */
     @Column(name = "user_email", length = 100)
@@ -58,11 +61,11 @@ public class Users {
     private String userRole;
 
     /** 최초생성시간 */
-    @Column(name = "created_tsp", nullable = false, updatable = false)
+    @Column(name = "created_tsp", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdTsp;
 
     /** 최종변경시간 */
-    @Column(name = "updated_tsp", nullable = false)
+    @Column(name = "updated_tsp", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedTsp;
 
     /** Refresh Token */
@@ -71,19 +74,7 @@ public class Users {
 
     /** Refresh Token 만료시간 */
     @Column(name = "refresh_token_expiry")
-    private LocalDateTime refreshTokenExpiry;   
-
-    /** 사용자 타입 (EMAIL, NAVER, KAKAO 등) */
-    @Column(name = "user_type", length = 20)
-    private String userType;
-
-    /** 사용 여부 (Y/N) */
-    @Column(name = "usg_yn", length = 1)
-    private String usgYn;
-
-    /** OAuth 사용자들과의 일대다 관계 */
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OAuthUsers> oauthUsers;
+    private LocalDateTime refreshTokenExpiry;
 
     // ===== 생성자 =====
 
@@ -91,13 +82,13 @@ public class Users {
     }
 
     // ===== JPA 생명주기 메서드 =====
-    
+
     @PrePersist
     protected void onCreate() {
         this.createdTsp = LocalDateTime.now();
         this.updatedTsp = LocalDateTime.now();
     }
-    
+
     @PreUpdate
     protected void onUpdate() {
         this.updatedTsp = LocalDateTime.now();
@@ -127,6 +118,14 @@ public class Users {
 
     public void setUserPassword(String userPassword) {
         this.userPassword = userPassword;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 
     public String getUserEmail() {
@@ -164,7 +163,7 @@ public class Users {
     public String getZip() {
         return zip;
     }
-    
+
     public void setZip(String zip) {
         this.zip = zip;
     }
@@ -208,10 +207,11 @@ public class Users {
     public void setUpdatedTsp(LocalDateTime updatedTsp) {
         this.updatedTsp = updatedTsp;
     }
-    
+
     public String getRefreshToken() {
         return refreshToken;
     }
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -222,29 +222,5 @@ public class Users {
 
     public void setRefreshTokenExpiry(LocalDateTime refreshTokenExpiry) {
         this.refreshTokenExpiry = refreshTokenExpiry;
-    }    
-
-    public String getUserType() {
-        return userType;
-    }
-
-    public void setUserType(String userType) {
-        this.userType = userType;
-    }
-
-    public String getUsgYn() {
-        return usgYn;
-    }
-
-    public void setUsgYn(String usgYn) {
-        this.usgYn = usgYn;
-    }
-
-    public List<OAuthUsers> getOauthUsers() {
-        return oauthUsers;
-    }
-
-    public void setOauthUsers(List<OAuthUsers> oauthUsers) {
-        this.oauthUsers = oauthUsers;
     }
 }
